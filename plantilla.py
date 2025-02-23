@@ -56,7 +56,7 @@ class Participantes:
         #Label Departamento
         self.lblDep =  ttk.Label(self.lblfrm_Datos)
         self.lblDep.configure(anchor="e", font="TkTextFont", justify="left", text="Departamento")
-        self.lblDep.configure(width="12")
+        self.lblDep.configure(width="14")
         self.lblDep.grid(column="0", padx="5", pady="15", row="2")
         
         #Entry Departamento
@@ -80,7 +80,7 @@ class Participantes:
         self.comboboxCiudad = ttk.Combobox(self.lblfrm_Datos)
         conn = sqlite3.connect(self.db_name)  # Conectar a la base de datos
         cursor = conn.cursor()
-        cursor.execute('SELECT DISTINCT Nombre_Ciudad FROM t_ciudades')
+        cursor.execute('SELECT DISTINCT Nombre_Ciudad FROM t_ciudades DESC')
         ciudad = cursor.fetchall() 
         self.comboboxCiudad['values'] = [ciu[0] for ciu in ciudad] 
         conn.close()
@@ -135,32 +135,42 @@ class Participantes:
           
         #Configuración del Labe Frame    
         self.lblfrm_Datos.configure(height="430", relief="groove", text=" Inscripción ", width="330")
-        self.lblfrm_Datos.place(anchor="nw", relx="0.01", rely="0.1", width="280", x="0", y="0")
+        self.lblfrm_Datos.place(relx="0.01", rely="0.1", width="300", x="0", y="0")
         #self.lblfrm_Datos.grid_propagate(0)
 
 
         #Botón Grabar
         self.btnGrabar = ttk.Button(self.win)
-        self.btnGrabar.configure(state="normal", text="Grabar", width="9")
-        self.btnGrabar.place(anchor="nw", relx="0.01", rely="0.75", x="0", y="0")
+        self.btnGrabar.configure(state="normal", text="Grabar", width="8")
+        self.btnGrabar.place(anchor="nw", relx=0.01, rely="0.7", x="2",  y="0")
         self.btnGrabar.bind("<1>", self.adiciona_Registro, add="+")
         
         #Botón Editar
         self.btnEditar = ttk.Button(self.win)        
-        self.btnEditar.configure(text="Editar", width="9")
-        self.btnEditar.place(anchor="nw", rely="0.75", x="80", y="0")
+        self.btnEditar.configure(text="Editar", width="8")
+        self.btnEditar.place(anchor="nw", rely="0.7", x="75", y="0")
+
         self.btnEditar.bind("<1>", self.edita_tablaTreeView, add="+")
         
         #Botón Eliminar
         self.btnEliminar = ttk.Button(self.win)
-        self.btnEliminar.configure(text="Eliminar", width="9")
-        self.btnEliminar.place(anchor="nw", rely="0.75", x="152", y="0")
+        self.btnEliminar.configure(text="Eliminar", width="8")
+        self.btnEliminar.place(anchor="nw", rely="0.7", x="135", y="0")
+
         self.btnEliminar.bind("<1>", self.elimina_Registro, add="+")
         
+        #Botón Consultar
+        self.btnConsultar = ttk.Button(self.win)
+        self.btnConsultar.configure(text="Consultar", width="8")
+        self.btnConsultar.place(anchor="nw", rely="0.7", x="195", y="0")
+
+        self.btnConsultar.bind("<1>", self.consultar_registro, add="+")
+
         #Botón Cancelar
         self.btnCancelar = ttk.Button(self.win)
-        self.btnCancelar.configure(text="Cancelar", width="9",command = self.limpia_Campos)
-        self.btnCancelar.place(anchor="nw", rely="0.75", x="225", y="0")
+        self.btnCancelar.configure(text="Cancelar", width="8",command = self.limpia_Campos)
+        self.btnCancelar.place(anchor="nw", rely="0.7", x="255", y="0")
+
         
         #tablaTreeView
         self.style=ttk.Style()
@@ -196,11 +206,11 @@ class Participantes:
         #Scrollbar en el eje Y de treeDatos
         self.scrollbar=ttk.Scrollbar(self.win, orient='vertical', command=self.treeDatos.yview)
         self.treeDatos.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.place(x=1000, y=70, height=400)
+        self.scrollbar.place(x=1020, y=80, height=400)
 
         #Carga los datos en treeDatos
         self.lee_tablaTreeView()    
-        self.treeDatos.place(anchor="nw", height="400", rely="0.1", width="700", x="300", y="0")
+        self.treeDatos.place(anchor="nw", height="400", rely="0.115", width="700", x="320", y="2")
  
    
     def valida(self):
@@ -248,7 +258,17 @@ class Participantes:
         self.entryFecha.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][4])
               
     def limpia_Campos(self):
-      pass
+    # Limpiar todos los campos de texto y el combobox. Restablecer el entry id
+        self.entryId.delete(0, "end")
+        self.entryNombre.delete(0, "end")
+        self.entryDireccion.delete(0, "end")
+        self.entryCelular.delete(0, "end")
+        self.entryEntidad.delete(0, "end")
+        self.entryFecha.delete(0, "end")
+        self.comboboxDep.set('')
+        self.comboboxCiudad.set('')
+        self.entryId.configure(state='normal')
+        
 
     def run_Query(self, query, parametros = ()):
         ''' Función para ejecutar los Querys a la base de datos '''
@@ -339,4 +359,4 @@ class Participantes:
 
 if __name__ == "__main__":
     app = Participantes()
-    app.run() 
+    app.run()
