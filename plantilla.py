@@ -61,14 +61,10 @@ class Participantes:
         
         #Entry Departamento
         self.comboboxDep = ttk.Combobox(self.lblfrm_Datos)
-        conn = sqlite3.connect(self.db_name)  # Conectar a la base de datos
-        cursor = conn.cursor()
-        cursor.execute('SELECT DISTINCT Nombre_Departamento FROM t_ciudades')
-        departamentos = cursor.fetchall() 
-        self.comboboxDep['values'] = [dep[0] for dep in departamentos] 
-        conn.close()
         self.comboboxDep.configure(exportselection="true", justify="left", width="27")
         self.comboboxDep.grid(column="1", row="2", sticky="w")
+        self.load_departments()
+        self.comboboxDep.bind("<<ComboboxSelected>>", self.update_cities)
         
         #Label Ciudad
         self.lblCiudad =  ttk.Label(self.lblfrm_Datos)
@@ -78,12 +74,6 @@ class Participantes:
         
         #Entry Ciudad
         self.comboboxCiudad = ttk.Combobox(self.lblfrm_Datos)
-        conn = sqlite3.connect(self.db_name)  # Conectar a la base de datos
-        cursor = conn.cursor()
-        cursor.execute('SELECT DISTINCT Nombre_Ciudad FROM t_ciudades DESC')
-        ciudad = cursor.fetchall() 
-        self.comboboxCiudad['values'] = [ciu[0] for ciu in ciudad] 
-        conn.close()
         self.comboboxCiudad.configure(exportselection="true", justify="left", width="27")
         self.comboboxCiudad.grid(column="1", row="3", sticky="w")
         
@@ -149,7 +139,6 @@ class Participantes:
         self.btnEditar = ttk.Button(self.win)        
         self.btnEditar.configure(text="Editar", width="8")
         self.btnEditar.place(anchor="nw", rely="0.7", x="75", y="0")
-
         self.btnEditar.bind("<1>", self.edita_tablaTreeView, add="+")
         
         #Botón Eliminar
@@ -170,6 +159,24 @@ class Participantes:
         self.btnCancelar = ttk.Button(self.win)
         self.btnCancelar.configure(text="Cancelar", width="8",command = self.limpia_Campos)
         self.btnCancelar.place(anchor="nw", rely="0.7", x="255", y="0")
+
+                 # Aplicar hover a los botones
+        self.apply_hover_effect(self.btnGrabar)
+        self.apply_hover_effect(self.btnEditar)
+        self.apply_hover_effect(self.btnEliminar)
+        self.apply_hover_effect(self.btnCancelar)
+
+    def apply_hover_effect(self, button):
+        def on_enter(event):
+            button.configure(style="Hover.TButton")
+        def on_leave(event):
+            button.configure(style="TButton")
+        button.bind("<Enter>", on_enter)
+        button.bind("<Leave>", on_leave)
+
+        # Estilo para el hover
+        style = ttk.Style()
+        style.configure("Hover.TButton", background="#000000", foreground="Blue")
 
         
         #tablaTreeView
@@ -252,11 +259,51 @@ class Participantes:
         self.entryId.insert(0,self.treeDatos.item(self.treeDatos.selection())['text'])
         self.entryId.configure(state = 'readonly')
         self.entryNombre.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][0])
+        self.comboboxDep.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][1])
+        self.comboboxCiudad.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][2])
         self.entryDireccion.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][1])
         self.entryCelular.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][2])
         self.entryEntidad.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][3])
         self.entryFecha.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][4])
               
+        
+
+    def load_departments(self):
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute('SELECT DISTINCT Nombre_Departamento FROM t_ciudades')
+        departamentos = cursor.fetchall()
+        self.comboboxDep['values'] = [dep[0] for dep in departamentos]
+        conn.close()
+
+    def update_cities(self, event):
+        selected_department = self.comboboxDep.get()
+        #Si no hay un departameto seleccionado no muestra ninguna ciudad
+        if not selected_department:
+            self.comboboxCiudad['values'] = []
+            return
+
+        try:
+            conn = sqlite3.connect(self.db_name)  # Conectar a la base de datos
+            cursor = conn.cursor()
+            cursor.execute('SELECT Nombre_Ciudad FROM t_ciudades WHERE Nombre_Departamento = ?', (selected_department,))
+            ciudades = cursor.fetchall()
+
+            if ciudades:  # Verificar si se encontraron ciudades
+                self.comboboxCiudad['values'] = [ciu[0] for ciu in ciudades]
+            else:
+                self.comboboxCiudad['values'] = []
+
+        # Limpiar el combobox de ciudades
+            self.comboboxCiudad.set('')  
+        except sqlite3.Error as e:
+            print(f"Error al acceder a la base de datos: {e}")
+        finally:
+            conn.close()
+    
+    
+
+    
     def limpia_Campos(self):
     # Limpiar todos los campos de texto y el combobox. Restablecer el entry id
         self.entryId.delete(0, "end")
@@ -288,30 +335,33 @@ class Participantes:
         db_rows = self.run_Query(query)
         # Insertando los datos de la BD en la tabla de la pantalla
         for row in db_rows:
-            self.treeDatos.insert('',0, text = row[0], values = [row[1],row[2],row[3],row[4],row[5]])
+            self.treeDatos.insert('',0, text = row[0], values = [row[1],row[2],row[3],row[4],row[5],row[6],row[7]])
         
     def adiciona_Registro(self, event=None):
-        '''Adiciona un producto a la BD si la validación es True'''
+        '''Adiciona un participante a la BD si la validación es True'''
         if self.actualiza:
             self.actualiza = None
-            self.entryId.configure(state = 'readonly')
-            query = 'UPDATE t_participantes SET Id = ?,Nombre = ?,Dirección = ?,Celular = ?, Entidad = ?, Fecha = ? WHERE Id = ?'
-            parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
-                          self.entryCelular.get(), self.entryEntidad.get(), self.entryFecha.get()
-                          )
-                        #   self.entryId.get())
+            self.entryId.configure(state='readonly')
+            query = 'UPDATE t_participantes SET Nombre = ?, Departamento = ?, Ciudad = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ? WHERE Id = ?'
+            print("query", query)
+            print("self.comboboxDep.get()", self.comboboxDep.get())
+            print("self.comboboxCiudad.get()", self.comboboxCiudad.get())
+            parametros = (self.entryNombre.get(), self.comboboxDep.get(), self.comboboxCiudad.get(), 
+                        self.entryDireccion.get(), self.entryCelular.get(), self.entryEntidad.get(), 
+                        self.entryFecha.get(), self.entryId.get())
             self.run_Query(query, parametros)
-            mssg.showinfo('Ok',' Registro actualizado con éxito')
+            mssg.showinfo('Ok', 'Registro actualizado con éxito')
         else:
-            query = 'INSERT INTO t_participantes VALUES(?, ?, ?, ?, ?, ?)'
-            parametros = (self.entryId.get(),self.entryNombre.get(), self.entryDireccion.get(),
-                          self.entryCelular.get(), self.entryEntidad.get(), self.entryFecha.get())
+            query = 'INSERT INTO t_participantes (Id, Nombre, Departamento, Ciudad, Direccion, Celular, Entidad, Fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            parametros = (self.entryId.get(), self.entryNombre.get(), self.comboboxDep.get(), 
+                        self.comboboxCiudad.get(), self.entryDireccion.get(), self.entryCelular.get(), 
+                        self.entryEntidad.get(), self.entryFecha.get())
             if self.valida():
                 self.run_Query(query, parametros)
                 self.limpia_Campos()
-                mssg.showinfo('',f'Registro: {self.entryId.get()} .. agregado')
+                mssg.showinfo('', f'Registro: {self.entryId.get()} .. agregado')
             else:
-                mssg.showerror("¡ Atención !","No puede dejar la identificación vacía")
+                mssg.showerror("¡ Atención !", "No puede dejar la identificación vacía")
         self.limpia_Campos()
         self.lee_tablaTreeView()
 
@@ -360,3 +410,4 @@ class Participantes:
 if __name__ == "__main__":
     app = Participantes()
     app.run()
+    
