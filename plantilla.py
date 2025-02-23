@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox as mssg
 import sqlite3
+import datetime
 
 class Participantes:
     # nombre de la base de datos  y ruta 
@@ -60,7 +61,12 @@ class Participantes:
         
         #Entry Departamento
         self.comboboxDep = ttk.Combobox(self.lblfrm_Datos)
-        self.comboboxDep['values'] = ['']
+        conn = sqlite3.connect(self.db_name)  # Conectar a la base de datos
+        cursor = conn.cursor()
+        cursor.execute('SELECT DISTINCT Nombre_Departamento FROM t_ciudades')
+        departamentos = cursor.fetchall() 
+        self.comboboxDep['values'] = [dep[0] for dep in departamentos] 
+        conn.close()
         self.comboboxDep.configure(exportselection="true", justify="left", width="27")
         self.comboboxDep.grid(column="1", row="2", sticky="w")
         
@@ -72,7 +78,12 @@ class Participantes:
         
         #Entry Ciudad
         self.comboboxCiudad = ttk.Combobox(self.lblfrm_Datos)
-        self.comboboxCiudad['values'] = ['']
+        conn = sqlite3.connect(self.db_name)  # Conectar a la base de datos
+        cursor = conn.cursor()
+        cursor.execute('SELECT DISTINCT Nombre_Ciudad FROM t_ciudades')
+        ciudad = cursor.fetchall() 
+        self.comboboxCiudad['values'] = [ciu[0] for ciu in ciudad] 
+        conn.close()
         self.comboboxCiudad.configure(exportselection="true", justify="left", width="27")
         self.comboboxCiudad.grid(column="1", row="3", sticky="w")
         
@@ -126,7 +137,8 @@ class Participantes:
         self.lblfrm_Datos.configure(height="430", relief="groove", text=" Inscripción ", width="330")
         self.lblfrm_Datos.place(anchor="nw", relx="0.01", rely="0.1", width="280", x="0", y="0")
         #self.lblfrm_Datos.grid_propagate(0)
-        
+
+
         #Botón Grabar
         self.btnGrabar = ttk.Button(self.win)
         self.btnGrabar.configure(state="normal", text="Grabar", width="9")
@@ -208,7 +220,21 @@ class Participantes:
               self.entryId.delete(15,"end")
 
     def valida_Fecha(self, event=None):
-      pass
+        ''' Valida que la fecha ingresada sea correcta en formato dd/mm/yyyy '''
+        fecha_texto = self.entryFecha.get()
+        try:
+            # Intentamos convertir la fecha
+            fecha_obj = datetime.datetime.strptime(fecha_texto, "%d/%m/%Y")
+            # Validamos si el mes y día son correctos
+            fecha_texto= dia, mes, año
+            dia, mes, año = fecha_obj.day, fecha_obj.month, fecha_obj.year
+            if mes == 2 and dia == 29:  # Verificamos si el año es bisiesto
+                if not (año % 4 == 0 and (año % 100 != 0 or año % 400 == 0)):
+                    raise ValueError("El año ingresado no es bisiesto.")
+        except ValueError:
+            if not (fecha_texto == fecha_obj):
+                mssg.showerror("Fecha incorrecta", "Ingrese una fecha válida en formato dd/mm/yyyy.")
+                self.entryFecha.delete(0, "end")
     
 
     def carga_Datos(self):
@@ -280,9 +306,36 @@ class Participantes:
             self.actualiza = None
             mssg.showerror("¡ Atención !",'Por favor seleccione un ítem de la tabla')
             return
-        
+
+    def consultar_registro(self, event=None):
+        '''Consulta un participante por ID y carga sus datos en los campos'''
+        id_participante = self.entryId.get().strip()
+    
+        if not id_participante:
+            mssg.showerror("Error", "Debe ingresar un ID para consultar.")
+            return
+
+        query = "SELECT * FROM t_participantes WHERE Id = ?"
+        resultado = self.run_Query(query, (id_participante,))
+        datos = resultado.fetchone()
+
+        if datos:
+            self.limpia_Campos()
+            self.entryId.insert(0, datos[0])
+            self.entryNombre.insert(0, datos[1])
+            self.entryDireccion.insert(0, datos[2])
+            self.entryCelular.insert(0, datos[3])
+            self.entryEntidad.insert(0, datos[4])
+            self.entryFecha.insert(0, datos[5])
+            self.comboboxCiudad.set(datos[6])
+        else:
+            mssg.showerror("Error", "No se encontró ningún participante con ese ID.")
+
+    
     def elimina_Registro(self, event=None):
      pass
+
+
 
 if __name__ == "__main__":
     app = Participantes()
