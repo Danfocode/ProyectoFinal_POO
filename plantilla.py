@@ -5,7 +5,7 @@ import sqlite3
 
 class Participantes:
     # nombre de la base de datos  y ruta 
-    path = r'X:/Users/ferna/Documents/UNal/Alumnos/2024_S2/POO/Proy'
+    path = r'd:/Users/Leo/Documents/documentos U. Nacional/ProyectoFinal_POO'
     db_name = path + r'/Participantes.db'
     actualiza = None
     def __init__(self, master=None):
@@ -14,19 +14,19 @@ class Participantes:
         
              
         #Top Level - Configuración
-        self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
-        self.win.geometry("1024x480")
-        self.path = self.path +r'/f2.ico'
-        self.win.iconbitmap(self.path)
-        self.win.resizable(False, False)
-        self.win.title("Conferencia MACSS y la Ingenería de Requerimientos")
-        self.win.pack_propagate(0) 
+        #self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
+        #self.win.geometry("1024x480")
+        #self.path = self.path +r'/f2.ico'
+        #self.win.iconbitmap(self.path)
+        #self.win.resizable(False, False)
+        #self.win.title("Conferencia MACSS y la Ingenería de Requerimientos")
+        #self.win.pack_propagate(0) 
         
         # Main widget
         self.mainwindow = self.win
         
         #Label Frame
-        self.lblfrm_Datos = tk.LabelFrame(self.win, width= 600, height= 200, labelanchor= "n", 
+        self.lblfrm_Datos = tk.LabelFrame(self.win, width= 600, height= 400, labelanchor= "n", 
                                           font= ("Helvetica", 13,"bold"))
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos)
@@ -51,57 +51,81 @@ class Participantes:
         self.entryNombre = tk.Entry(self.lblfrm_Datos)
         self.entryNombre.configure(exportselection="true", justify="left",relief="groove", width="30")
         self.entryNombre.grid(column="1", row="1", sticky="w")
+
+        #Label Departamento
+        self.lblDep =  ttk.Label(self.lblfrm_Datos)
+        self.lblDep.configure(anchor="e", font="TkTextFont", justify="left", text="Departamento")
+        self.lblDep.configure(width="12")
+        self.lblDep.grid(column="0", padx="5", pady="15", row="2")
+        
+        #Entry Departamento
+        self.comboboxDep = ttk.Combobox(self.lblfrm_Datos)
+        self.comboboxDep['values'] = ['']
+        self.comboboxDep.configure(exportselection="true", justify="left", width="27")
+        self.comboboxDep.grid(column="1", row="2", sticky="w")
+        
+        #Label Ciudad
+        self.lblCiudad =  ttk.Label(self.lblfrm_Datos)
+        self.lblCiudad.configure(anchor="e", font="TkTextFont", justify="left", text="Ciudad")
+        self.lblCiudad.configure(width="12")
+        self.lblCiudad.grid(column="0", padx="5", pady="15", row="3")
+        
+        #Entry Ciudad
+        self.comboboxCiudad = ttk.Combobox(self.lblfrm_Datos)
+        self.comboboxCiudad['values'] = ['']
+        self.comboboxCiudad.configure(exportselection="true", justify="left", width="27")
+        self.comboboxCiudad.grid(column="1", row="3", sticky="w")
         
         #Label Direccion
         self.lblDireccion = ttk.Label(self.lblfrm_Datos)
         self.lblDireccion.configure(anchor="e", font="TkTextFont", justify="left", text="Dirección")
         self.lblDireccion.configure(width="12")
-        self.lblDireccion.grid(column="0", padx="5", pady="15", row="2", sticky="w")
+        self.lblDireccion.grid(column="0", padx="5", pady="15", row="4", sticky="w")
         
         #Entry Direccion
         self.entryDireccion = tk.Entry(self.lblfrm_Datos)
         self.entryDireccion.configure(exportselection="true", justify="left",relief="groove", width="30")
-        self.entryDireccion.grid(column="1", row="2", sticky="w")
+        self.entryDireccion.grid(column="1", row="4", sticky="w")
         
         #Label Celular
         self.lblCelular = ttk.Label(self.lblfrm_Datos)
         self.lblCelular.configure(anchor="e", font="TkTextFont", justify="left", text="Celular")
         self.lblCelular.configure(width="12")
-        self.lblCelular.grid(column="0", padx="5", pady="15", row="3", sticky="w")
+        self.lblCelular.grid(column="0", padx="5", pady="15", row="5", sticky="w")
         
         #Entry Celular
         self.entryCelular = tk.Entry(self.lblfrm_Datos)
         self.entryCelular.configure(exportselection="false", justify="left",relief="groove", width="30")
-        self.entryCelular.grid(column="1", row="3", sticky="w")
+        self.entryCelular.grid(column="1", row="5", sticky="w")
         
         #Label Entidad
         self.lblEntidad = ttk.Label(self.lblfrm_Datos)
         self.lblEntidad.configure(anchor="e", font="TkTextFont", justify="left", text="Entidad")
         self.lblEntidad.configure(width="12")
-        self.lblEntidad.grid(column="0", padx="5", pady="15", row="4", sticky="w")
+        self.lblEntidad.grid(column="0", padx="5", pady="15", row="6", sticky="w")
         
         #Entry Entidad
         self.entryEntidad = tk.Entry(self.lblfrm_Datos)
         self.entryEntidad.configure(exportselection="true", justify="left",relief="groove", width="30")
-        self.entryEntidad.grid(column="1", row="4", sticky="w")
+        self.entryEntidad.grid(column="1", row="6", sticky="w")
         
         #Label Fecha
         self.lblFecha = ttk.Label(self.lblfrm_Datos)
         self.lblFecha.configure(anchor="e", font="TkTextFont", justify="left", text="Fecha")
         self.lblFecha.configure(width="12")
-        self.lblFecha.grid(column="0", padx="5", pady="15", row="5", sticky="w")
+        self.lblFecha.grid(column="0", padx="5", pady="15", row="7", sticky="w")
         
         #Entry Fecha
         self.entryFecha = tk.Entry(self.lblfrm_Datos)
         self.entryFecha.configure(exportselection="true", justify="left",relief="groove", width="30")
-        self.entryFecha.grid(column="1", row="5", sticky="w")
+        self.entryFecha.grid(column="1", row="7", sticky="w")
         self.entryFecha.bind("<Key>", self.valida_Fecha)
         
           
         #Configuración del Labe Frame    
-        self.lblfrm_Datos.configure(height="310", relief="groove", text=" Inscripción ", width="330")
+        self.lblfrm_Datos.configure(height="430", relief="groove", text=" Inscripción ", width="330")
         self.lblfrm_Datos.place(anchor="nw", relx="0.01", rely="0.1", width="280", x="0", y="0")
-        self.lblfrm_Datos.grid_propagate(0)
+        #self.lblfrm_Datos.grid_propagate(0)
         
         #Botón Grabar
         self.btnGrabar = ttk.Button(self.win)
@@ -133,30 +157,34 @@ class Participantes:
         self.style.layout("estilo.Treeview", [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
 
         self.treeDatos = ttk.Treeview(self.win, height = 10, style="estilo.Treeview")
-        self.treeDatos.place(x=380, y=10, height=340, width = 500)
+        self.treeDatos.place(x=380, y=10, height=340, width = 600)
 
        # Etiquetas de las columnas
-        self.treeDatos["columns"]=("Nombre","Dirección","Celular","Entidad","Fecha")
+        self.treeDatos["columns"]=("Nombre","Departamento","Ciudad","Dirección","Celular","Entidad","Fecha")
         # Determina el espacio a mostrar que ocupa el código
-        self.treeDatos.column('#0',         anchor="w", stretch="true", width=15)
-        self.treeDatos.column('Nombre',     stretch="true",             width=60)
-        self.treeDatos.column('Dirección',  stretch="true",             width=60)
-        self.treeDatos.column('Celular',    stretch="true",             width=16)
-        self.treeDatos.column('Entidad',    stretch="true",             width=60)
-        self.treeDatos.column('Fecha',      stretch="true",             width=12) 
+        self.treeDatos.column('#0',         anchor="w", stretch="true", width=60)
+        self.treeDatos.column('Nombre',         stretch="true",             width=80)
+        self.treeDatos.column('Departamento',   stretch="true",             width=80)
+        self.treeDatos.column('Ciudad',         stretch="true",             width=80)
+        self.treeDatos.column('Dirección',      stretch="true",             width=70)
+        self.treeDatos.column('Celular',        stretch="true",             width=70)
+        self.treeDatos.column('Entidad',        stretch="true",             width=90)
+        self.treeDatos.column('Fecha',          stretch="true",             width=50) 
 
        #Encabezados de las columnas de la pantalla
-        self.treeDatos.heading('#0',       text = 'Id')
-        self.treeDatos.heading('Nombre',   text = 'Nombre')
-        self.treeDatos.heading('Dirección',text = 'Dirección')
-        self.treeDatos.heading('Celular',  text = 'Celular')
-        self.treeDatos.heading('Entidad',  text = 'Entidad')
-        self.treeDatos.heading('Fecha',    text = 'Fecha')
+        self.treeDatos.heading('#0',             text = 'Id')
+        self.treeDatos.heading('Nombre',         text = 'Nombre')
+        self.treeDatos.heading('Departamento',   text = 'Departamento')
+        self.treeDatos.heading('Ciudad',         text = 'Ciudad')
+        self.treeDatos.heading('Dirección',      text = 'Dirección')
+        self.treeDatos.heading('Celular',        text = 'Celular')
+        self.treeDatos.heading('Entidad',        text = 'Entidad')
+        self.treeDatos.heading('Fecha',          text = 'Fecha')
 
         #Scrollbar en el eje Y de treeDatos
         self.scrollbar=ttk.Scrollbar(self.win, orient='vertical', command=self.treeDatos.yview)
         self.treeDatos.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.place(x=1000, y=50, height=400)
+        self.scrollbar.place(x=1000, y=70, height=400)
 
         #Carga los datos en treeDatos
         self.lee_tablaTreeView()    
