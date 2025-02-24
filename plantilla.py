@@ -15,13 +15,13 @@ class Participantes:
         
              
         #Top Level - Configuración
-        self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
-        self.win.geometry("1024x480")
+        #self.win.configure(background="#d9f0f9", relief="flat")
+        #self.win.geometry("1024x480")
         self.path = self.path +r'/icon.ico'
         self.win.iconbitmap(self.path)
-        self.win.resizable(False, False)
+        #self.win.resizable(True, True)
         self.win.title("Inscripcion")
-        self.win.pack_propagate(0) 
+        #self.win.pack_propagate(0) 
         
         # Main widget
         self.mainwindow = self.win
@@ -287,7 +287,8 @@ class Participantes:
             cursor.execute('SELECT Nombre_Ciudad FROM t_ciudades WHERE Nombre_Departamento = ?', (selected_department,))
             ciudades = cursor.fetchall()
 
-            if ciudades:  # Verificar si se encontraron ciudades
+            # Verificar si se encontraron ciudades
+            if ciudades:  
                 self.comboboxCiudad['values'] = [ciu[0] for ciu in ciudades]
             else:
                 self.comboboxCiudad['values'] = []
@@ -341,9 +342,6 @@ class Participantes:
             self.actualiza = None
             self.entryId.configure(state='readonly')
             query = 'UPDATE t_participantes SET Nombre = ?, Departamento = ?, Ciudad = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ? WHERE Id = ?'
-            print("query", query)
-            print("self.comboboxDep.get()", self.comboboxDep.get())
-            print("self.comboboxCiudad.get()", self.comboboxCiudad.get())
             parametros = (self.entryNombre.get(), self.comboboxDep.get(), self.comboboxCiudad.get(), 
                         self.entryDireccion.get(), self.entryCelular.get(), self.entryEntidad.get(), 
                         self.entryFecha.get(), self.entryId.get())
