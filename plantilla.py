@@ -15,13 +15,13 @@ class Participantes:
         
              
         #Top Level - Configuración
-        #self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
-        #self.win.geometry("1024x480")
-        #self.path = self.path +r'/f2.ico'
-        #self.win.iconbitmap(self.path)
-        #self.win.resizable(False, False)
-        #self.win.title("Conferencia MACSS y la Ingenería de Requerimientos")
-        #self.win.pack_propagate(0) 
+        self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
+        self.win.geometry("1024x480")
+        self.path = self.path +r'/icon.ico'
+        self.win.iconbitmap(self.path)
+        self.win.resizable(False, False)
+        self.win.title("Inscripcion")
+        self.win.pack_propagate(0) 
         
         # Main widget
         self.mainwindow = self.win
@@ -243,16 +243,14 @@ class Participantes:
             # Intentamos convertir la fecha
             fecha_obj = datetime.datetime.strptime(fecha_texto, "%d/%m/%Y")
             # Validamos si el mes y día son correctos
-            fecha_texto= dia, mes, año
             dia, mes, año = fecha_obj.day, fecha_obj.month, fecha_obj.year
             if mes == 2 and dia == 29:  # Verificamos si el año es bisiesto
                 if not (año % 4 == 0 and (año % 100 != 0 or año % 400 == 0)):
                     raise ValueError("El año ingresado no es bisiesto.")
         except ValueError:
-            if not (fecha_texto == fecha_obj):
-                mssg.showerror("Fecha incorrecta", "Ingrese una fecha válida en formato dd/mm/yyyy.")
-                self.entryFecha.delete(0, "end")
-    
+            mssg.showerror("Fecha incorrecta", "Ingrese una fecha válida en formato dd/mm/yyyy.")
+            self.entryFecha.delete(0, "end")
+        
 
     def carga_Datos(self):
         ''' Carga los datos en los campos desde el treeView'''
